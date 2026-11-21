@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Navidades en familia</title>
+<meta name="theme-color" content="#0f3a2a"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Navidades"><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: cálido, de casa, festivo pero legible a un pulgar de distancia
+   IDEA: una tarjeta de Navidad con guirnalda de luces que hace de calendario de la familia
+   LAYOUT: móvil primero: lista vertical, respuesta rápida en la propia tarjeta, barra inferior, hojas que suben desde abajo
+   v4: GitHub Pages + Supabase; cada familia entra con su enlace (?f=token), sin login. */
+:root{color-scheme:light;
+--bg:#f6f2ea;--card:#fffdf9;--ink:#1f1a16;--mute:#625a52;--line:#e6ddd0;--pine:#0f3a2a;--pine2:#1b5a40;--red:#b3242a;--gold:#f0b429;
+--si:#1f7a48;--qz:#f0b429;--ot:#2c67b0;--no:#b8322b;--nr:#ddd5c9;
+--on-pine2:#fff;--note-bg:#fff1cf;--badge-bg:#e3f1e8;--nav-bg:#fffdf9f2;--hi-bg:#fbe9e7;--wa:#1f7a48;
+--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;
+--bg:#0b1611;--card:#14241b;--ink:#f3efe6;--mute:#aab8ae;--line:#26392e;--pine2:#8fd0aa;--red:#e0565b;--nr:#34463b;
+--on-pine2:#0b1611;--note-bg:#3a2f12;--badge-bg:#1c3a2a;--nav-bg:#0f1d16f2;--hi-bg:#2a1716;--wa:#5fcf8f}}
+:root[data-theme=dark]{color-scheme:dark;
+--bg:#0b1611;--card:#14241b;--ink:#f3efe6;--mute:#aab8ae;--line:#26392e;--pine2:#8fd0aa;--red:#e0565b;--nr:#34463b;
+--on-pine2:#0b1611;--note-bg:#3a2f12;--badge-bg:#1c3a2a;--nav-bg:#0f1d16f2;--hi-bg:#2a1716;--wa:#5fcf8f}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Nunito,system-ui,sans-serif;overflow-x:clip;touch-action:manipulation}
+h1,h2,h3{margin:0;line-height:1.1;text-wrap:balance}
+h2,h3{font-family:"Baloo 2",system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:12px;top:12px;z-index:50;background:var(--card);padding:10px;border-radius:8px}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left))}
+
+/* Cabecera */
+.hero{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 80% 0%,#1d5a41 0%,var(--pine) 60%,#0a281d 100%);color:#fff;padding-top:var(--safe-t)}
+.lights{height:46px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='46'%3E%3Cpath d='M0 6 Q30 24 60 6 Q90 24 120 6' fill='none' stroke='%23071d14' stroke-width='2'/%3E%3Crect x='27' y='13' width='6' height='5' rx='1' fill='%23c9a54a'/%3E%3Cellipse cx='30' cy='26' rx='6' ry='9' fill='%23ff4d4f'/%3E%3Cellipse cx='28' cy='23' rx='2' ry='3' fill='%23fff' opacity='.5'/%3E%3Crect x='57' y='5' width='6' height='5' rx='1' fill='%23c9a54a'/%3E%3Cellipse cx='60' cy='18' rx='6' ry='9' fill='%23ffd34d'/%3E%3Cellipse cx='58' cy='15' rx='2' ry='3' fill='%23fff' opacity='.5'/%3E%3Crect x='87' y='13' width='6' height='5' rx='1' fill='%23c9a54a'/%3E%3Cellipse cx='90' cy='26' rx='6' ry='9' fill='%23fff3d6'/%3E%3C/svg%3E") 0 0/120px 46px repeat-x;filter:drop-shadow(0 0 6px #ffd34d66)}
+.hin{position:relative;z-index:2;padding-block:6px 22px}
+.hero h1{font:400 clamp(34px,9vw,52px)/1.15 Pacifico,cursive;max-width:12ch}
+.count{margin:6px 0 16px;font-weight:700;color:#ffe7a8;max-width:min(30ch,62%)}
+.tree{position:absolute;right:max(8px,3vw);bottom:0;width:clamp(110px,30vw,190px);height:auto;z-index:1}
+.snow{position:absolute;inset:0;pointer-events:none;z-index:1}
+.snow i{position:absolute;top:-10px;width:var(--s);height:var(--s);border-radius:50%;background:#fff;opacity:.8;animation:fall var(--d) linear var(--w) infinite}
+@keyframes fall{to{transform:translate3d(var(--x),260px,0);opacity:0}}
+.whobtn{display:inline-flex;align-items:center;gap:10px;min-height:48px;margin:0;padding:0 18px 0 8px;border-radius:24px;background:#fff;color:var(--pine);font-weight:800;box-shadow:0 4px 14px #0004}
+.themebtn{position:absolute;z-index:3;top:calc(var(--safe-t) + 50px);right:10px;width:44px;height:44px;border-radius:50%;border:0;background:#ffffff26;color:#fff;display:grid;place-items:center}
+.themebtn svg{width:22px;height:22px}
+
+.note{margin:14px max(16px,calc((100% - 1040px)/2)) 0;background:var(--note-bg);border-radius:12px;padding:12px 14px;font-weight:600}
+main{padding-block:18px calc(96px + var(--safe-b))}
+.sec-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0 12px}
+.sec-h h2{font-size:26px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--mute);margin:-4px 0 14px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend b{width:12px;height:12px;border-radius:50%;background:var(--c)}
+
+/* Bolas de árbol */
+.orn{--c:var(--nr);position:relative;flex:none;width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#ffffff70 0 18%,#0000 19%),var(--c);display:grid;place-items:center;font:800 12px/1 Nunito,sans-serif;color:var(--t,#fff);margin-top:6px}
+.orn::before{content:"";position:absolute;top:-6px;left:50%;width:12px;height:7px;margin-left:-6px;border-radius:2px 2px 1px 1px;background:#c9a54a}
+.orn.nr{color:var(--mute);background:var(--nr)}
+.orn[data-g]::after{content:attr(data-g);position:absolute;right:-5px;bottom:-4px;width:18px;height:18px;border-radius:50%;background:var(--card);color:var(--ink);font:800 11px/18px Nunito,sans-serif;text-align:center;box-shadow:0 0 0 2px var(--c)}
+
+/* Tarjetas de fecha */
+.list{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 2px 0 var(--line);overflow:hidden}
+.card.cum{border-top:4px solid var(--gold)}
+.card.past{opacity:.6}
+.ctop{all:unset;box-sizing:border-box;display:flex;gap:14px;align-items:center;width:100%;padding:14px 14px 6px;cursor:pointer}
+.ctop:focus-visible{outline:3px solid var(--gold);outline-offset:-3px;border-radius:20px}
+.date{flex:none;width:58px;height:62px;border-radius:14px;background:var(--red);color:#fff;display:grid;place-content:center;text-align:center;box-shadow:inset 0 -5px 0 #0003}
+.date b{font:800 28px/1 "Baloo 2",sans-serif}.date span{font-size:12px;font-weight:700;text-transform:lowercase}
+.card.cum .date{background:var(--pine2);color:var(--on-pine2)}
+.ct{flex:1}.ct small{display:block;color:var(--mute);font-weight:700;font-size:13px}.ct .tt{display:block;font:800 22px/1.1 "Baloo 2",sans-serif}
+.chev{flex:none;display:inline-flex;align-items:center;gap:2px;color:var(--pine2);font-weight:800;font-size:14px}
+.orns{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:4px;padding:8px 12px 4px}
+.ornw{display:grid;justify-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--mute)}
+button.ornw{border:0;background:none;padding:2px 0;border-radius:10px}
+.meta{padding:6px 16px 0;font-size:14px}
+.badge{display:inline-flex;gap:6px;align-items:center;margin:8px 16px 0;background:var(--badge-bg);color:var(--pine2);font-weight:800;font-size:14px;padding:5px 10px;border-radius:10px}
+.last{padding:4px 16px 0;font-size:13px;color:var(--mute)}
+.quick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:12px 12px 14px}
+.quick button{min-height:48px;border-radius:14px;border:2px solid var(--line);background:var(--bg);font-weight:800;font-size:14px;line-height:1.1;padding:4px;transition:transform .15s,background-color .2s}
+.quick button:active,.btn:active{transform:scale(.96)}
+.quick button[aria-pressed=true]{background:var(--c);border-color:var(--c);color:var(--t,#fff)}
+.quick button:disabled{opacity:.45;cursor:default}
+.qlabel{padding:10px 16px 0;font-size:13px;font-weight:700;color:var(--mute)}
+
+/* Resumen e historial */
+.box{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:14px}
+.box h3{font-size:20px;margin-bottom:8px}
+.rowi{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.rowi:first-of-type{border-top:0}
+.rowi b{font-family:"Baloo 2",sans-serif;font-size:18px}
+.small{font-size:13px;color:var(--mute)}
+.bar{height:8px;border-radius:4px;background:var(--nr);margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--si);border-radius:4px}
+.mx{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:4px;margin-top:8px}
+.mx .ornw{font-size:12px;text-align:center}
+.vacio{color:var(--mute);margin:4px 0}
+.pill{display:inline-block;padding:3px 10px;border-radius:10px;background:var(--c);color:var(--t,#fff);font-size:13px;font-weight:800;white-space:nowrap}
+.pill.nr{background:var(--nr);color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.chip{min-height:40px;padding:0 14px;border-radius:20px;border:2px solid var(--line);background:var(--card);font-weight:800;font-size:14px}
+.chip[aria-pressed=true]{background:var(--pine2);border-color:var(--pine2);color:var(--on-pine2)}
+.tally{display:flex;align-items:center;gap:10px}
+.cnt{flex:none;min-width:34px;height:34px;padding:0 8px;border-radius:17px;background:var(--badge-bg);color:var(--pine2);display:grid;place-items:center;font:800 16px/1 "Baloo 2",sans-serif}
+
+/* Barra inferior */
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--nav-bg);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px 8px calc(6px + var(--safe-b));display:flex;justify-content:center}
+.bnav div{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;width:min(560px,100%)}
+.bnav button{display:grid;justify-items:center;gap:2px;min-height:54px;padding:6px 0 0;border:0;border-radius:14px;background:none;color:var(--mute);font-size:12px;font-weight:800}
+.bnav button[hidden]{display:none}
+.bnav svg{width:24px;height:24px}
+.bnav button[aria-current=page]{color:var(--red);background:var(--hi-bg)}
+.adm{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:8px;background:var(--gold);color:#2a1d00;font:800 12px/1.4 Nunito,sans-serif;vertical-align:middle}
+.ro{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:18px}
+.ro b{font-family:"Baloo 2",sans-serif;font-size:18px}
+.sel{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.sel:first-of-type{border-top:0}.sel select{width:auto;max-width:100%}
+.selw{display:flex;gap:6px;align-items:center;max-width:62%}
+.chkgrid{display:grid;gap:8px;margin:8px 0 12px}
+.lock{font-size:13px;color:var(--mute);margin:8px 0 0}
+.lrow{padding:12px 0;border-top:1px solid var(--line);display:grid;gap:8px}
+.lrow:first-of-type{border-top:0}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.inl{display:flex;gap:8px;margin-top:10px}.inl input{flex:1}
+
+/* Hoja inferior */
+.ov{position:fixed;inset:0;z-index:40;background:#0000;display:flex;align-items:flex-end;justify-content:center;transition:background-color .2s}
+.ov.on{background:#0008}
+.ov[hidden]{display:none}
+.sheet{position:relative;width:min(640px,100%);max-height:calc(94dvh - var(--safe-t));overflow:auto;overscroll-behavior:contain;background:var(--bg);border-radius:24px 24px 0 0;padding:8px 18px calc(24px + var(--safe-b));transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.ov.on .sheet{transform:none}
+.grab{display:block;width:100%;height:28px;border:0;background:none;position:relative;touch-action:none}
+.grab::after{content:"";position:absolute;left:50%;top:10px;width:44px;height:5px;margin-left:-22px;border-radius:3px;background:var(--line)}
+.x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:var(--card);display:grid;place-items:center}
+.sheet h2{font-size:26px;padding-right:48px}.sheet h3{font-size:19px;margin:22px 0 10px}
+form{display:grid;gap:12px}
+fieldset.fs{border:0;padding:0;margin:0;display:grid;gap:12px;min-width:0}
+label.f{display:grid;gap:6px;font-weight:800;font-size:14px}
+.help{font-weight:400;color:var(--mute);font-size:13px}
+input[type=text],input[type=tel],input[type=date],select,textarea{font:16px Nunito,sans-serif;min-height:48px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);width:100%}
+input.linkin{font-size:13px;min-height:40px;color:var(--mute)}
+textarea{min-height:80px;resize:vertical}
+.segs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.seg{position:relative}
+.seg input,.chk input{position:absolute;opacity:0;width:1px;height:1px}
+.seg span{display:flex;align-items:center;justify-content:center;gap:6px;min-height:52px;border-radius:14px;border:2px solid var(--line);background:var(--card);font-weight:800;text-align:center;padding:4px 8px}
+.seg input:checked+span{background:var(--c);border-color:var(--c);color:var(--t,#fff)}
+.seg input:focus-visible+span,.chk input:focus-visible+span{outline:3px solid var(--gold);outline-offset:2px}
+fieldset:disabled .seg span,fieldset:disabled .chk{opacity:.55;cursor:default}
+.chk{position:relative;display:flex;align-items:center;min-height:52px;padding:0 12px;border-radius:14px;background:var(--card);border:1.5px solid var(--line);cursor:pointer;font-weight:700}
+.chk span{display:flex;align-items:center;gap:12px}
+.chk span::before{content:"";flex:none;width:24px;height:24px;border-radius:7px;border:2px solid var(--mute)}
+.chk input:checked+span::before{background:var(--red) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12l5 5 9-10' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/18px no-repeat;border-color:var(--red)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:52px;border-radius:14px;border:0;background:var(--red);color:#fff;font-weight:800;font-size:16px;padding:0 20px;width:100%;text-decoration:none;text-align:center;transition:transform .15s}
+.btn.alt{background:var(--pine2);color:var(--on-pine2)}
+.btn.ghost{background:var(--card);color:var(--ink);border:1.5px solid var(--line);width:auto;min-height:44px;font-size:14px;padding:0 14px}
+.btn.mini{min-height:40px;font-size:13px;padding:0 12px}
+.btn.wa{color:var(--wa);border-color:var(--wa)}
+.btn.danger{color:var(--red);border-color:var(--red)}
+.btn:disabled{opacity:.5}
+details{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:0 14px;margin-top:18px}
+summary{min-height:52px;display:flex;align-items:center;font-weight:800;cursor:pointer}
+details[open]{padding-bottom:14px}
+.resp{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.rsd{display:grid;justify-items:end;gap:6px}
+.toast{position:fixed;left:50%;bottom:calc(84px + var(--safe-b));z-index:60;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--bg);font-weight:800;padding:12px 18px;border-radius:24px;transition:opacity .2s,transform .2s;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media(min-width:760px){.hin{padding-block:14px 30px}.sec-h h2{font-size:30px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}.snow{display:none}}
+</style></head><body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="hero">
+  <div class="lights" aria-hidden="true"></div>
+  <div class="snow" id="snow" aria-hidden="true"></div>
+  <button type="button" class="themebtn" id="themeBtn"></button>
+  <svg class="tree" viewBox="0 0 120 150" aria-hidden="true">
+    <path d="M60 22 L92 68 H74 L102 106 H80 L112 146 H8 L40 106 H18 L46 68 H28 Z" fill="#0a2a1d"/>
+    <path d="M60 22 L92 68 H74 L102 106 H80 L112 146 H60 Z" fill="#082318"/>
+    <path d="M60 4 l4.7 9.6 10.6 1.5-7.7 7.5 1.8 10.5L60 28.2l-9.4 4.9 1.8-10.5-7.7-7.5 10.6-1.5Z" fill="#f0b429"/>
+    <circle cx="48" cy="80" r="4" fill="#ff4d4f"/><circle cx="72" cy="94" r="4" fill="#ffd34d"/><circle cx="38" cy="124" r="4" fill="#fff3d6"/><circle cx="84" cy="128" r="4" fill="#ff4d4f"/><circle cx="62" cy="58" r="3.5" fill="#fff3d6"/>
+  </svg>
+  <div class="wrap hin">
+    <h1>Navidades en familia</h1>
+    <p class="count" id="count"></p>
+    <p class="whobtn" id="whoBtn" hidden></p>
+  </div>
+</header>
+<p id="note" class="note" hidden></p>
+<main id="main" class="wrap">
+  <section id="v-calendario" aria-labelledby="h-cal">
+    <div class="sec-h"><h2 id="h-cal">Las fechas</h2><a class="btn ghost mini" id="icsAll" download="navidades-en-familia.ics" hidden>📅 A mi calendario</a></div>
+    <div class="legend"><span><b style="--c:var(--si)"></b>Sí</span><span><b style="--c:var(--qz)"></b>Quizá</span><span><b style="--c:var(--ot)"></b>Con la otra familia</span><span><b style="--c:var(--no)"></b>No</span><span><b style="--c:var(--nr)"></b>Sin responder</span></div>
+    <div id="cal" class="list"></div>
+  </section>
+  <section id="v-resumen" hidden aria-labelledby="h-res">
+    <div class="sec-h"><h2 id="h-res">Resumen</h2></div>
+    <div class="box"><h3>Mejores días para juntarnos</h3><div id="best"></div></div>
+    <div class="box"><h3>Falta por responder</h3><div id="pend"></div></div>
+    <div class="box"><h3>Planes con otras familias</h3><div id="otros"></div></div>
+    <div class="box"><h3>Quién puede cada día</h3><p class="small" id="mxHelp" hidden style="margin:-4px 0 6px">Toca una bola para cambiar esa respuesta.</p><div id="mxs"></div></div>
+  </section>
+  <section id="v-historial" hidden aria-labelledby="h-his">
+    <div class="sec-h"><h2 id="h-his">Historial</h2></div>
+    <p class="small" style="margin-top:-6px" id="histIntro"></p>
+    <div class="chips" id="seasons" role="group" aria-label="Temporada"></div>
+    <div class="box"><h3>Quién ha sido anfitrión</h3><div id="tally"></div></div>
+    <div id="hist" class="list"></div>
+    <div id="histAdm"></div>
+  </section>
+  <section id="v-admin" hidden aria-labelledby="h-adm">
+    <div class="sec-h"><h2 id="h-adm">Administrar</h2></div>
+    <p class="small" style="margin-top:-6px">Solo lo veis Carolina y Daniel. Los cambios se aplican al momento para toda la familia.</p>
+    <div class="box"><h3>Enlaces de cada familia</h3><p class="small" style="margin:-4px 0 6px">Cada familia entra con su enlace, sin contraseña. Si un enlace llega a quien no debe, crea uno nuevo: el viejo deja de funcionar.</p><div id="alinks"></div></div>
+    <div class="box"><h3>Fechas</h3><div id="aevs"></div><button type="button" class="btn alt" data-evnew style="margin-top:10px">Añadir fecha</button></div>
+    <div class="box"><h3>Sitios y casas</h3><p class="small" style="margin:-4px 0 6px">De quién es la casa de cada sitio. Así se ve «Canet · casa de…» en la decisión.</p><div id="acasas"></div>
+      <form id="flug" class="inl"><input type="text" name="n" maxlength="60" placeholder="Nuevo sitio, ej.: Sant Pol" aria-label="Nombre del nuevo sitio"><button class="btn alt" type="submit" style="width:auto">Añadir</button></form></div>
+    <div class="box"><h3>Temporada</h3><form id="ftemp"><label class="f">Temporada actual <span class="help">Al acabar las fiestas: en Historial, «Guardar las decisiones en el historial». Después cambia la temporada y las fechas.</span><input type="text" name="t" maxlength="20" placeholder="2026-27"></label><button class="btn alt" type="submit">Guardar temporada</button></form></div>
+    <div class="box"><h3>Qué ve cada familia</h3><p class="small" style="margin:-4px 0 6px">Elige qué respuestas de otras familias y qué fechas ve cada una. Cada familia siempre ve las suyas.</p><div id="avis"></div></div>
+  </section>
+</main>
+<nav class="bnav" id="bnav" aria-label="Secciones"><div>
+  <button type="button" data-view="calendario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>Fechas</button>
+  <button type="button" data-view="resumen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Resumen</button>
+  <button type="button" data-view="historial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>Historial</button>
+  <button type="button" data-view="admin" id="navAdm" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Admin</button>
+</div></nav>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="ov" class="ov" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="ptitle">
+  <button type="button" class="grab" id="grab" aria-label="Cerrar deslizando hacia abajo" tabindex="-1"></button>
+  <button type="button" class="x" id="x" aria-label="Cerrar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div id="pbody"></div><div id="plive"></div>
+</div></div>
+<script>
+{
+/* ===== Configuración: proyecto Supabase (la clave publicable está hecha para ir en la web) ===== */
+const SUPA_URL='https://dwqycgfacwqibtpyqojp.supabase.co';
+const SUPA_KEY='sb_publishable_iYMhOHE29_HUVKSi29P7Fw_yiNg92Mk';
+/* Enlace de cada familia: ?f=TOKEN. Se recuerda en este móvil por si luego se abre sin él. */
+const T=(()=>{let t=new URLSearchParams(location.search).get('f');try{if(t)localStorage.setItem('navi-token',t);else t=localStorage.getItem('navi-token')}catch(e){}return t||''})();
+const ST={si:{l:'Podemos',s:'Sí',g:'✓',c:'var(--si)'},qz:{l:'Quizá',s:'Quizá',g:'?',c:'var(--qz)',t:'#2a1d00'},ot:{l:'Con la otra familia',s:'Otra fam.',m:'Otra',g:'→',c:'var(--ot)'},no:{l:'No podemos',s:'No',g:'✕',c:'var(--no)'}};
+const DOW=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+let S=null,FAM=[],EV=[],LUG=[],isAdmin=false,me=null,resp={},plan={},hist=[],cfg={},view='calendario',open=null,openFam=null,mode=null,lastFocus=null,histSeason=null,linkSig='',casSig='';
+const busy=new Set(),visDirty=new Set();
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hoy=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+let today=hoy();
+const fam=k=>FAM.find(f=>f.k===k);const famN=k=>fam(k)?.n||'';
+const R=(f,e)=>resp[f+'__'+e];
+const stOf=r=>r&&ST[r.estado];
+const evById=k=>EV.find(e=>e.k===k);
+const cvar=st=>st?`--c:${st.c};${st.t?'--t:'+st.t:''}`:'';
+const visOf=k=>(cfg.vis&&cfg.vis[k])||{hideFams:[],hideEvs:[]};
+const prevSeason=t=>{const m=/^(\d{4})-(\d{2})$/.exec(t||'');return m?(+m[1]-1)+'-'+m[1].slice(2):''};
+const histFor=(k,t)=>hist.find(h=>h.ev===k&&h.temporada===t);
+const lugarTxt=p=>{if(!p||!p.lugar)return '';if(p.lugar==='otro')return p.lugarTxt||'Otro sitio';const l=LUG.find(x=>x.k===p.lugar);if(!l)return '';const c=cfg.casas&&cfg.casas[l.k];return l.n+(c&&famN(c)?' · casa de '+famN(c):'')};
+const note=t=>{const n=$('#note');n.textContent=t;n.hidden=!t};
+const BASE=location.origin+location.pathname.replace(/[^/]*$/,'');
+const linkOf=l=>l&&l.token?BASE+'?f='+encodeURIComponent(l.token):'';
+const link=k=>{const l=(S.links||[]).find(x=>x.k===k);return l&&{...l,url:linkOf(l)}};
+/* Calendario .ics generado aquí mismo (hora local de quien lo abre: la familia está en España) */
+function icsUrl(w){if(!S||!EV.length)return '';const p2=n=>String(n).padStart(2,'0'),now=new Date();
+ const stamp=now.getUTCFullYear()+p2(now.getUTCMonth()+1)+p2(now.getUTCDate())+'T'+p2(now.getUTCHours())+p2(now.getUTCMinutes())+p2(now.getUTCSeconds())+'Z';
+ const tx=s=>String(s||'').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/([,;])/g,'\\$1');
+ const fold=l=>{const o=[];while(l.length>74){o.push(l.slice(0,74));l=' '+l.slice(74)}o.push(l);return o.join('\r\n')};
+ const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Navidades en familia//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:Navidades en familia'];
+ EV.filter(e=>w==='all'||e.k===w).forEach(e=>{const p=plan[e.k]||{},m=/^(\d{1,2})[:.h](\d{2})$/.exec(String(p.hora||'').trim()),[y,mo,d]=e.f.split('-').map(Number);
+  L.push('BEGIN:VEVENT','UID:'+e.k+'-'+e.f+'@navidades-en-familia','DTSTAMP:'+stamp);
+  const fmt=t=>{const x=new Date(t);return x.getUTCFullYear()+p2(x.getUTCMonth()+1)+p2(x.getUTCDate())};
+  if(m){const ini=Date.UTC(y,mo-1,d,+m[1],+m[2]),fin=ini+3*36e5,hm=t=>{const x=new Date(t);return 'T'+p2(x.getUTCHours())+p2(x.getUTCMinutes())+'00'};L.push('DTSTART:'+fmt(ini)+hm(ini),'DTEND:'+fmt(fin)+hm(fin))}
+  else{const ini=Date.UTC(y,mo-1,d);L.push('DTSTART;VALUE=DATE:'+fmt(ini),'DTEND;VALUE=DATE:'+fmt(ini+864e5))}
+  L.push('SUMMARY:'+tx(e.t+(e.s?' · '+e.s:'')));const lt=lugarTxt(p);if(lt)L.push('LOCATION:'+tx(lt));
+  L.push('DESCRIPTION:'+tx([p.lugar?(p.confirmado?'Confirmado':'Propuesta, aún por confirmar'):'Sitio por decidir',p.hora&&!m?'Hora: '+p.hora:'',p.nota||''].filter(Boolean).join('\n')),'END:VEVENT')});
+ L.push('END:VCALENDAR');return 'data:text/calendar;charset=utf-8,'+encodeURIComponent(L.map(fold).join('\r\n')+'\r\n')}
+const waUrl=(tel,txt)=>{let d=String(tel||'').replace(/\D/g,'');if(/^[679]\d{8}$/.test(d))d='34'+d;return 'https://wa.me/'+d+'?text='+encodeURIComponent(txt)};
+let tt;function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('on'),2800)}
+function orn(f,r){const st=stOf(r);return `<span class="orn${st?'':' nr'}" style="${cvar(st)}"${st?` data-g="${st.g}"`:''} role="img" aria-label="${esc(f.n)}: ${st?st.l:'sin responder'}">${esc(f.i)}</span>`}
+function stats(e){const rs=FAM.map(f=>R(f.k,e.k));const c=x=>rs.filter(r=>r&&r.estado===x).length;
+ return{n:FAM.length,si:c('si'),qz:c('qz'),votos:rs.filter(r=>r&&r.voto).length,casas:FAM.filter(f=>R(f.k,e.k)?.casa).map(f=>f.n),resp:rs.filter(Boolean).length}}
+const isPast=e=>e.f<today;
+
+/* ---------- Servidor ---------- */
+const API={getState:['navi_estado'],saveResp:['navi_guardar_respuesta','p_fam','p_ev','p_datos'],deleteResp:['navi_quitar_respuesta','p_fam','p_ev'],
+ savePlan:['navi_guardar_decision','p_ev','p_datos'],saveHist:['navi_guardar_historial','p_temporada','p_ev','p_datos'],cerrarTemporada:['navi_cerrar_temporada'],
+ saveEvent:['navi_guardar_fecha','p_datos'],deleteEvent:['navi_borrar_fecha','p_ev'],saveCfg:['navi_guardar_ajustes','p_parte'],saveFam:['navi_guardar_familia','p_fam','p_datos']};
+async function run(fn,...a){const [rpc,...names]=API[fn],body={p_token:T};names.forEach((n,i)=>body[n]=a[i]);
+ const h={'Content-Type':'application/json',apikey:SUPA_KEY};if(/^eyJ/.test(SUPA_KEY))h.Authorization='Bearer '+SUPA_KEY;
+ let r;try{r=await fetch(SUPA_URL+'/rest/v1/rpc/'+rpc,{method:'POST',headers:h,body:JSON.stringify(body)})}catch(e){throw new Error('Sin conexión. Inténtalo de nuevo.')}
+ const j=await r.json().catch(()=>null);
+ if(!r.ok){const e=new Error((j&&j.code==='P0001'&&j.message)||'No se pudo conectar con los datos. Inténtalo de nuevo.');e.status=r.status;e.dbcode=j&&j.code;throw e}
+ return j}
+const errMsg=e=>String(e&&e.message||e||'')||'No se pudo guardar. Inténtalo de nuevo.';
+async function call(fn,args,btn,okMsg){const key=fn+JSON.stringify(args.slice(0,2));
+ if(busy.has(key)){toast('Un momento, guardando…');return false}busy.add(key);
+ const lbl=btn&&btn.textContent;if(btn){btn.disabled=true;if(btn.classList.contains('btn')&&!btn.classList.contains('mini'))btn.textContent='Guardando…'}
+ try{const st=await run(fn,...args);if(st)setState(st);toast(st&&st.aviso||okMsg);try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}return true}
+ catch(e){toast(errMsg(e));return false}
+ finally{busy.delete(key);if(btn&&document.body.contains(btn)){btn.disabled=false;if(lbl!=null)btn.textContent=lbl}}}
+let refreshing=false;
+async function refresh(){if(refreshing||busy.size||!T)return;refreshing=true;try{setState(await run('getState'));note('')}catch(e){if(/válido/.test(errMsg(e)))note(errMsg(e))}finally{refreshing=false}}
+function setState(st){S=st;FAM=st.fams||[];isAdmin=!!st.me.admin;me=st.me.k;resp=st.resp||{};plan=st.plan||{};hist=st.hist||[];cfg=st.cfg||{};LUG=cfg.lugares||[];
+ EV=(st.evs||[]).map(e=>{const d=new Date(e.f+'T12:00');return{...e,d:d.getDate(),w:DOW[d.getDay()],m:MES[d.getMonth()]}});
+ if(!histSeason)histSeason=prevSeason(cfg.temporada)||cfg.temporada;
+ renderAll()}
+/* Dos toques para lo que no se deshace */
+function armed(b,txt){if(b.dataset.armed)return true;const o=b.textContent;b.dataset.armed='1';b.textContent=txt||'¿Seguro? Toca otra vez';setTimeout(()=>{if(document.body.contains(b)){delete b.dataset.armed;b.textContent=o}},4000);return false}
+
+/* ---------- Pintar ---------- */
+function renderHead(){
+ const nx=EV.find(e=>e.f>=today);
+ if(nx){const n=Math.round((new Date(nx.f+'T12:00')-new Date(today+'T12:00'))/864e5);$('#count').textContent=n===0?`¡Hoy es ${nx.t}!`:n===1?`Mañana: ${nx.t}`:`Faltan ${n} días para ${nx.t}`}
+ else $('#count').textContent=EV.length?'¡Feliz año a toda la familia!':'Navidades '+(cfg.temporada||'');
+ const w=$('#whoBtn');w.hidden=false;w.innerHTML=`<span class="orn" style="--c:var(--red);margin:0">${esc(S.me.i)}</span>Sois ${esc(S.me.n)}${isAdmin?'<span class="adm">Admin</span>':''}`;
+ $('#navAdm').hidden=!isAdmin;
+ const ia=$('#icsAll'),u=icsUrl('all');ia.hidden=!u||!EV.length;if(u)ia.href=u;
+ $('#histIntro').textContent='Cómo quedó cada fecha otros años, para repartir anfitriones con justicia.'+(isAdmin?'':' Lo apuntan Carolina y Daniel.')}
+function renderCal(){
+ $('#cal').innerHTML=EV.map(e=>{const s=stats(e),p=plan[e.k],h=histFor(e.k,prevSeason(cfg.temporada)),mine=R(me,e.k),lt=lugarTxt(p),lock=isPast(e)&&!isAdmin;
+ return `<article class="card${e.cum?' cum':''}${isPast(e)?' past':''}">
+ <button type="button" class="ctop" data-ev="${esc(e.k)}" aria-label="${esc(e.t)}, ${e.w} ${e.d} ${e.m}. Ver detalles y respuestas">
+  <span class="date" aria-hidden="true"><b>${e.d}</b><span>${e.m}</span></span>
+  <span class="ct"><small>${e.w}${e.s?' · '+esc(e.s):''}</small><span class="tt">${esc(e.t)}</span></span>
+  <span class="chev" aria-hidden="true">Detalles<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span>
+ </button>
+ <div class="orns">${FAM.map(f=>{const st=stOf(R(f.k,e.k));return `<span class="ornw">${orn(f,R(f.k,e.k))}<span aria-hidden="true">${st?(st.m||st.s):'—'}</span></span>`}).join('')}</div>
+ <div class="meta"><b>${s.si}</b> de ${s.n} pueden${s.qz?` · ${s.qz} quizá`:''} · <b>${s.votos}</b> ${s.votos===1?'voto':'votos'} para juntarnos${s.casas.length?`<br><span class="small">Ofrecen casa: ${esc(s.casas.join(', '))}</span>`:''}</div>
+ ${lt?(p.confirmado?`<div class="badge">★ ${esc(lt)}${p.hora?' · '+esc(p.hora):''}</div>`:`<div class="last">Propuesta: ${esc(lt)}${p.hora?' · '+esc(p.hora):''}</div>`):''}
+ ${h&&lugarTxt(h)?`<div class="last">El año pasado: ${esc(lugarTxt(h))}</div>`:''}
+ <div class="qlabel" id="ql-${esc(e.k)}">${lock?(mine?'Fecha pasada · respondisteis':'Fecha pasada'):mine?'Vuestra respuesta':'Falta vuestra respuesta'}</div><div class="quick" role="group" aria-labelledby="ql-${esc(e.k)}">${Object.keys(ST).map(k=>`<button type="button" data-q="${k}" data-e="${esc(e.k)}" style="${cvar(ST[k])}" aria-pressed="${mine?.estado===k}"${lock?' disabled':''}>${ST[k].s}</button>`).join('')}</div>
+ </article>`}).join('')||`<div class="box"><h3>Todavía no hay fechas</h3><p class="small" style="margin:0">${isAdmin?'Añádelas en Admin › Fechas.':'Carolina y Daniel las añadirán pronto.'}</p></div>`}
+function renderRes(){
+ const sc=EV.filter(e=>!isPast(e)).map(e=>({e,s:stats(e)})).filter(x=>x.s.resp).map(x=>({...x,p:x.s.si*2+x.s.qz+x.s.votos*2})).sort((a,b)=>b.p-a.p).slice(0,4);
+ $('#best').innerHTML=sc.length?sc.map(x=>`<div class="rowi"><div style="flex:1"><b>${esc(x.e.t)}</b><div class="small">${x.e.w} ${x.e.d} ${x.e.m} · ${x.s.si} de ${x.s.n} pueden${x.s.qz?`, ${x.s.qz} quizá`:''} · ${x.s.votos} ${x.s.votos===1?'voto':'votos'}</div><div class="bar"><i style="width:${x.s.si/x.s.n*100}%"></i></div></div></div>`).join(''):'<p class="vacio">Aún no hay respuestas. Con las primeras aparecerán aquí los días con más gente y más votos.</p>';
+ const pend=FAM.map(f=>({f,n:EV.filter(e=>!isPast(e)&&!R(f.k,e.k)).length})).filter(x=>x.n);
+ $('#pend').innerHTML=pend.length?pend.map(x=>{const l=isAdmin&&x.f.k!==me&&link(x.f.k);
+  return `<div class="rowi"><span style="display:flex;align-items:center;gap:10px">${orn(x.f,null)}<span><b>${esc(x.f.n)}</b><span class="small" style="display:block">${x.n} ${x.n===1?'fecha':'fechas'}</span></span></span>${l&&l.url?`<a class="btn ghost mini wa" target="_blank" rel="noopener" href="${esc(waUrl(l.telefono,`¡Hola, ${x.f.n}! 🎄 Os ${x.n===1?'falta 1 fecha':'faltan '+x.n+' fechas'} por responder en «Navidades en familia». Es un momento: ${l.url}`))}">Recordar</a>`:''}</div>`}).join(''):'<p class="vacio">Todos han respondido. ¡Bien!</p>';
+ const ot=[];FAM.forEach(f=>EV.forEach(e=>{const r=R(f.k,e.k);if(r&&r.con)ot.push({f,e,r})}));
+ $('#otros').innerHTML=ot.length?ot.map(x=>`<div class="rowi"><div><b>${esc(x.f.n)}</b><div class="small">${esc(x.e.t)} · ${esc(x.r.con)}</div></div><span class="pill" style="${cvar(stOf(x.r))}">${stOf(x.r)?.s||''}</span></div>`).join(''):'<p class="vacio">Nadie ha apuntado todavía planes con su otra familia.</p>';
+ $('#mxHelp').hidden=!isAdmin;
+ $('#mxs').innerHTML=EV.map(e=>{const p=plan[e.k],lt=lugarTxt(p);return `<div class="rowi" style="display:block"><b>${esc(e.t)}</b> <span class="small">${e.d} ${e.m}${lt?' · '+esc(lt)+(p.confirmado?'':' (propuesta)'):''}</span><div class="mx">${FAM.map(f=>{const r=R(f.k,e.k),st=stOf(r),inner=`${orn(f,r)}<span aria-hidden="true">${st?(st.m||st.s):'—'}</span>`;
+  return isAdmin?`<button type="button" class="ornw" data-cell="${esc(f.k)}" data-cev="${esc(e.k)}" aria-label="Cambiar la respuesta de ${esc(f.n)} para ${esc(e.t)}">${inner}</button>`:`<span class="ornw">${inner}</span>`}).join('')}</div></div>`}).join('')}
+function renderHist(){
+ const cur=cfg.temporada,seasons=[...new Set([cur,prevSeason(cur),...hist.map(h=>h.temporada)].filter(Boolean))].sort().reverse();
+ if(!seasons.includes(histSeason))histSeason=seasons[0];
+ $('#seasons').innerHTML=seasons.map(t=>`<button type="button" class="chip" data-season="${esc(t)}" aria-pressed="${t===histSeason}">${esc(t)}${t===cur?' (actual)':''}</button>`).join('');
+ const host={};hist.forEach(h=>{if(h.anfitrion)(host[h.anfitrion]=host[h.anfitrion]||[]).push(h)});
+ const rows=FAM.map(f=>({f,l:host[f.k]||[]})).sort((a,b)=>b.l.length-a.l.length||a.f.n.localeCompare(b.f.n));
+ $('#tally').innerHTML=Object.keys(host).length?rows.map(x=>{const by={};x.l.forEach(h=>(by[h.temporada]=by[h.temporada]||[]).push(h.titulo||evById(h.ev)?.t||h.ev));
+  return `<div class="rowi"><span class="tally"><span class="cnt">${x.l.length}</span><span><b>${esc(x.f.n)}</b><span class="small" style="display:block">${x.l.length?Object.keys(by).sort().reverse().map(t=>`${esc(t)}: ${by[t].map(esc).join(', ')}`).join(' · '):'Todavía no ha sido anfitrión'}</span></span></span></div>`}).join(''):'<p class="vacio">Cuando se apunte quién fue anfitrión de cada fecha, aquí saldrá el recuento.</p>';
+ const keys=[...new Set([...EV.map(e=>e.k),...hist.filter(h=>h.temporada===histSeason).map(h=>h.ev)])];
+ $('#hist').innerHTML=keys.map(k=>{const e=evById(k),h=histFor(k,histSeason)||{},lt=lugarTxt(h),t=e?e.t:h.titulo||k;
+  return `<article class="box" style="margin:0"><div class="rowi" style="border:0;padding:0"><div><b>${esc(t)}</b>${e&&e.s?`<div class="small">${esc(e.s)}</div>`:''}</div>${isAdmin?`<button type="button" class="btn ghost mini" data-hist="${esc(k)}">${h.ev?'Editar':'Apuntar'}</button>`:''}</div>
+ ${h.ev?`<p style="margin:10px 0 0"><b>${esc(lt||'Sitio sin apuntar')}</b></p>${h.anfitrion&&famN(h.anfitrion)?`<p class="small" style="margin:4px 0 0">Anfitrión: ${esc(famN(h.anfitrion))}</p>`:''}${h.quienes&&h.quienes.length?`<p class="small" style="margin:4px 0 0">Fuimos: ${h.quienes.map(famN).filter(Boolean).map(esc).join(', ')}</p>`:''}${h.nota?`<p class="small" style="margin:4px 0 0">${esc(h.nota)}</p>`:''}`:'<p class="small" style="margin:8px 0 0">Sin apuntar.</p>'}</article>`}).join('');
+ $('#histAdm').innerHTML=isAdmin&&histSeason===cur?`<div class="box" style="margin-top:14px"><h3>Cerrar la temporada</h3><p class="small" style="margin:-4px 0 10px">Copia aquí cada decisión de ${esc(cur)} con sitio: anfitrión según la casa y «fuimos» según quien dijo Sí. Lo puedes retocar después.</p><button type="button" class="btn alt" data-cerrar>Guardar las decisiones en el historial</button></div>`:''}
+const famSel=(attr,cur,empty)=>`<select ${attr} aria-label="Familia">${empty?`<option value="">${esc(empty)}</option>`:''}${FAM.map(f=>`<option value="${esc(f.k)}"${cur===f.k?' selected':''}>${esc(f.n)}</option>`).join('')}</select>`;
+const busyIn=el=>el.contains(document.activeElement);
+function renderAdmin(){if(!isAdmin)return;
+ const ls=JSON.stringify(S.links);
+ if(ls!==linkSig&&!busyIn($('#alinks'))){linkSig=ls;
+  $('#alinks').innerHTML=(S.links||[]).map(l0=>{const l={...l0,url:linkOf(l0)};return `<div class="lrow"><b>${esc(l.n)}${l.admin?'<span class="adm">Admin</span>':''}</b>
+  ${l.url?`<input class="linkin" type="text" readonly value="${esc(l.url)}" aria-label="Enlace de ${esc(l.n)}" data-sel>`:''}
+  ${l.admin?'<p class="small" style="margin:0">Este enlace da acceso de administrador: no lo compartas.</p>':`<label class="f">Teléfono para WhatsApp <span class="help">Opcional. Ej.: 600111222</span><input type="tel" inputmode="tel" autocomplete="off" maxlength="20" data-tel="${esc(l.k)}" value="${esc(l.telefono)}"></label>`}
+  <div class="acts">${l.url?`<button type="button" class="btn ghost mini" data-copy="${esc(l.k)}">Copiar</button>${l.admin?'':`<a class="btn ghost mini wa" target="_blank" rel="noopener" href="${esc(waUrl(l.telefono,`¡Hola, ${l.n}! 🎄 Este es vuestro enlace para «Navidades en familia». Marcad qué fechas podéis: ${l.url}`))}">Enviar por WhatsApp</a>`}`:''}${l.admin?'':`<button type="button" class="btn ghost mini danger" data-regen="${esc(l.k)}">Nuevo enlace</button>`}</div></div>`}).join('')}
+ $('#aevs').innerHTML=EV.length?EV.map(e=>`<div class="rowi"><div><b>${esc(e.t)}</b><div class="small">${e.w} ${e.d} ${e.m}${e.s?' · '+esc(e.s):''}${e.cum?' · cumple':''}</div></div><button type="button" class="btn ghost mini" data-evedit="${esc(e.k)}">Editar</button></div>`).join(''):'<p class="vacio">No hay fechas.</p>';
+ const cs=JSON.stringify([cfg.casas,LUG,FAM.map(f=>f.k)]);
+ if(cs!==casSig&&!busyIn($('#acasas'))){casSig=cs;
+  $('#acasas').innerHTML=LUG.map(l=>`<div class="sel"><b>${esc(l.n)}</b><span class="selw">${famSel(`data-casa="${esc(l.k)}"`,cfg.casas?.[l.k],'Sin asignar')}<button type="button" class="btn ghost mini" data-dellug="${esc(l.k)}" aria-label="Quitar ${esc(l.n)}">✕</button></span></div>`).join('')||'<p class="vacio">No hay sitios.</p>'}
+ const ti=$('#ftemp').t;if(document.activeElement!==ti)ti.value=cfg.temporada||'';
+ const curOpen=[...document.querySelectorAll('#avis details[open]')].map(d=>d.dataset.v);
+ if(!visDirty.size)$('#avis').innerHTML=FAM.map(f=>{const v=visOf(f.k),adm=link(f.k)?.admin;return `<details data-v="${esc(f.k)}"${curOpen.includes(f.k)?' open':''}><summary>${esc(f.n)}${adm?' <span class="adm">Admin</span>':''}</summary>
+ ${adm?'<p class="lock">Como administradores, lo ven todo.</p>':`<form data-visform="${esc(f.k)}"><b class="small">Ve las respuestas de</b><div class="chkgrid">${FAM.filter(o=>o.k!==f.k).map(o=>`<label class="chk"><input type="checkbox" name="vf" value="${esc(o.k)}"${(v.hideFams||[]).includes(o.k)?'':' checked'}><span>${esc(o.n)}</span></label>`).join('')}</div>
+ <b class="small">Ve estas fechas</b><div class="chkgrid">${EV.map(e=>`<label class="chk"><input type="checkbox" name="ve" value="${esc(e.k)}"${(v.hideEvs||[]).includes(e.k)?'':' checked'}><span>${esc(e.t)} · ${e.d} ${e.m}</span></label>`).join('')}</div>
+ <button class="btn alt" type="submit">Guardar lo que ve ${esc(f.n)}</button></form>`}</details>`}).join('')}
+function renderAll(){if(!S)return;const a=document.activeElement,sel=a&&a.closest&&a.closest('#cal,#mxs')?(a.dataset.q?`[data-q="${a.dataset.q}"][data-e="${a.dataset.e}"]`:a.dataset.ev?`[data-ev="${a.dataset.ev}"]`:a.dataset.cell?`[data-cell="${a.dataset.cell}"][data-cev="${a.dataset.cev}"]`:''):'';
+ renderHead();renderCal();renderRes();renderHist();renderAdmin();route();if(open&&mode==='ev')renderLive();
+ if(sel&&!document.body.contains(a)){const n=document.querySelector(sel);n&&n.focus({preventScroll:true})}}
+
+/* ---------- Hojas ---------- */
+function seg(v,cur){const s=ST[v];return `<label class="seg"><input type="radio" name="est" value="${v}"${cur===v?' checked':''}><span style="${cvar(s)}">${s.g} ${s.l}</span></label>`}
+function lugarFields(p,lbl){return `<label class="f">${lbl}<select name="lugar"><option value="">Sin decidir</option>${LUG.map(l=>`<option value="${esc(l.k)}"${p.lugar===l.k?' selected':''}>${esc(l.n)}${cfg.casas?.[l.k]&&famN(cfg.casas[l.k])?' · casa de '+esc(famN(cfg.casas[l.k])):''}</option>`).join('')}<option value="otro"${p.lugar==='otro'?' selected':''}>Otro sitio (escribir)</option></select></label>
+ <label class="f" data-otro${p.lugar==='otro'?'':' hidden'}>¿Qué sitio? <span class="help">Ej.: restaurante en Mataró</span><input type="text" name="lugarTxt" maxlength="120" value="${esc(p.lugarTxt)}"></label>`}
+function openEv(k,asFam){const e=evById(k);if(!e)return;const f=asFam||me;mode='ev';open=k;openFam=f;
+ const r=R(f,k)||{},p=plan[k]||{},lt=lugarTxt(p),lock=isPast(e)&&!isAdmin,other=f!==me,h=histFor(k,prevSeason(cfg.temporada)),iu=icsUrl(k);
+ $('#pbody').innerHTML=`<h2 id="ptitle">${esc(e.t)}</h2><p class="small" style="margin:4px 0 0">${e.w} ${e.d} ${e.m}${e.s?' · '+esc(e.s):''}${h&&lugarTxt(h)?' · El año pasado: '+esc(lugarTxt(h)):''}</p>
+ ${isAdmin?'':`<div class="ro"><span class="small">Dónde será</span><br><b>${lt?esc(lt):'Por decidir'}</b>${p.hora?` · ${esc(p.hora)}`:''}${lt?`<div class="small">${p.confirmado?'Confirmado':'Propuesta de Carolina y Daniel'}${p.nota?' · '+esc(p.nota):''}</div>`:'<div class="small">Lo deciden Carolina y Daniel con vuestras respuestas.</div>'}</div>`}
+ ${iu?`<div class="acts" style="margin-top:12px"><a class="btn ghost mini" href="${esc(iu)}" download="${esc(k)}.ics">📅 Añadir a mi calendario</a></div>`:''}
+ <h3>${other?`Respuesta de ${esc(famN(f))}<span class="adm">Admin</span>`:`Vuestra respuesta · ${esc(famN(f))}`}</h3>
+ ${lock?'<p class="lock" style="margin:-4px 0 12px">Esta fecha ya pasó: las respuestas están cerradas.</p>':''}
+ <form id="fresp" novalidate><fieldset class="fs"${lock?' disabled':''}><div class="segs" role="radiogroup" aria-label="Disponibilidad">${Object.keys(ST).map(v=>seg(v,r.estado)).join('')}</div>
+ <p class="small" id="errest" role="alert" style="margin:0;color:var(--red)"></p>
+ <label class="f">¿Con quién más tenéis plan ese día? <span class="help">Opcional. Ej.: comida con la familia de Eva</span><input type="text" name="con" maxlength="200" value="${esc(r.con)}" autocomplete="off"></label>
+ <label class="chk"><input type="checkbox" name="voto"${r.voto?' checked':''}><span>${other?'Vota':'Votamos'} juntarnos toda la familia</span></label>
+ <label class="chk"><input type="checkbox" name="casa"${r.casa?' checked':''}><span>${other?'Ofrece':'Ofrecemos'} ${other?'su':'nuestra'} casa</span></label>
+ <label class="f">Nota <span class="help">Opcional. Ej.: llegamos a partir de las 18:00</span><textarea name="nota" maxlength="500">${esc(r.nota)}</textarea></label>
+ <button class="btn" type="submit">Guardar respuesta</button></fieldset></form>
+ ${isAdmin&&r.estado?`<button type="button" class="btn ghost mini danger" data-delresp style="margin-top:10px">Quitar esta respuesta</button>`:''}
+ ${isAdmin?`<details${other?'':' open'}><summary>Decisión: dónde será <span class="adm">Admin</span></summary><form id="fplan">
+ ${lugarFields(p,'Dónde')}
+ <label class="f">Hora <span class="help">Ej.: 14:00</span><input type="text" name="hora" maxlength="20" autocomplete="off" value="${esc(p.hora)}" placeholder="14:00"></label>
+ <label class="f">Detalles <span class="help">Opcional. Ej.: cada familia trae un plato</span><input type="text" name="nota" maxlength="200" value="${esc(p.nota)}"></label>
+ <label class="chk"><input type="checkbox" name="confirmado"${p.confirmado?' checked':''}><span>Confirmado (si no, sale como propuesta)</span></label>
+ <button class="btn alt" type="submit">Guardar decisión</button></form></details>`:''}
+ <h3>Respuestas de la familia</h3>`;
+ renderLive();showSheet()}
+function renderLive(){const k=open;$('#plive').innerHTML=FAM.map(f=>{const r=R(f.k,k),st=stOf(r);return `<div class="resp"><span style="display:flex;gap:12px;align-items:flex-start">${orn(f,r)}<span><b>${esc(f.n)}</b>${r&&r.con?`<span class="small" style="display:block">Plan: ${esc(r.con)}</span>`:''}${r&&r.nota?`<span class="small" style="display:block">${esc(r.nota)}</span>`:''}${r&&(r.voto||r.casa)?`<span class="small" style="display:block">${[r.voto?'Vota juntarnos':'',r.casa?'Ofrece casa':''].filter(Boolean).join(' · ')}</span>`:''}</span></span><span class="rsd"><span class="pill${st?'':' nr'}" style="${cvar(st)}">${st?st.s:'Pendiente'}</span>${isAdmin&&f.k!==openFam?`<button type="button" class="btn ghost mini" data-editresp="${esc(f.k)}">Cambiar</button>`:''}</span></div>`}).join('')}
+function openHist(k){if(!isAdmin)return;mode='hist';open=k;const e=evById(k),h=histFor(k,histSeason)||{};
+ $('#pbody').innerHTML=`<h2 id="ptitle">${esc(e?e.t:h.titulo||k)}</h2><p class="small" style="margin:4px 0 14px">Cómo quedó en ${esc(histSeason)}</p><form id="fhist">
+ ${lugarFields(h,'Dónde fue')}
+ <label class="f">Anfitrión <span class="help">Se rellena solo con la casa del sitio</span>${famSel('name="anfitrion"',h.anfitrion,'Nadie (restaurante, fuera…)')}</label>
+ <fieldset class="fs" style="gap:8px"><legend style="font-weight:800;font-size:14px;margin-bottom:6px">Quiénes fuimos</legend>${FAM.map(f=>`<label class="chk"><input type="checkbox" name="q" value="${esc(f.k)}"${(h.quienes||[]).includes(f.k)?' checked':''}><span>${esc(f.n)}</span></label>`).join('')}</fieldset>
+ <label class="f">Notas <span class="help">Ej.: cocinó Ana; este año toca otra casa</span><textarea name="nota" maxlength="500">${esc(h.nota)}</textarea></label>
+ <button class="btn" type="submit">Guardar</button></form>${h.ev?'<button type="button" class="btn ghost mini danger" data-delhist style="margin-top:10px">Borrar este apunte</button>':''}`;
+ $('#plive').innerHTML='';showSheet()}
+function openEvEdit(k){if(!isAdmin)return;mode='evedit';open=k||null;const e=k?evById(k):{};
+ $('#pbody').innerHTML=`<h2 id="ptitle">${k?'Editar fecha':'Nueva fecha'}</h2><form id="fev" style="margin-top:14px">
+ <label class="f">Nombre <span class="help">Ej.: Cumple de la abuela</span><input type="text" name="titulo" maxlength="60" required value="${esc(e.t)}"></label>
+ <label class="f">Día<input type="date" name="fecha" required value="${esc(e.f)}"></label>
+ <label class="f">Qué se hace <span class="help">Ej.: Comida, Cena, Celebración</span><input type="text" name="subtitulo" maxlength="60" value="${esc(e.s)}"></label>
+ <label class="chk"><input type="checkbox" name="cumple"${e.cum?' checked':''}><span>Es un cumpleaños (tarjeta dorada)</span></label>
+ <button class="btn" type="submit">${k?'Guardar cambios':'Añadir fecha'}</button></form>
+ ${k?'<p class="small" style="margin:18px 0 8px">Borrar la fecha borra también sus respuestas y la decisión.</p><button type="button" class="btn ghost mini danger" data-delev>Borrar esta fecha</button>':''}`;
+ $('#plive').innerHTML='';showSheet()}
+function showSheet(){const ov=$('#ov');if(ov.hidden){lastFocus=document.activeElement;ov.hidden=false;document.body.style.overflow='hidden';requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('on')))}$('#sheet').scrollTop=0;$('#sheet').style.transform='';setTimeout(()=>$('#x').focus({preventScroll:true}),50)}
+function hideSheet(){const ov=$('#ov');if(ov.hidden)return;ov.classList.remove('on');$('#sheet').style.transform='';document.body.style.overflow='';open=null;openFam=null;mode=null;
+ setTimeout(()=>{ov.hidden=true;try{lastFocus&&document.body.contains(lastFocus)&&lastFocus.focus({preventScroll:true})}catch(e){}},matchMedia('(prefers-reduced-motion:reduce)').matches?0:200)}
+
+/* ---------- Eventos ---------- */
+document.addEventListener('submit',async ev=>{ev.preventDefault();const f=ev.target,b=f.querySelector('button[type=submit]');
+ if(f.id==='fresp'){const est=f.est.value;if(!est){$('#errest').textContent='Elige una opción: podemos, quizá, con la otra familia o no podemos.';f.querySelector('input[name=est]').focus();return}
+  $('#errest').textContent='';
+  if(await call('saveResp',[openFam,open,{estado:est,con:f.con.value.trim(),voto:f.voto.checked,casa:f.casa.checked,nota:f.nota.value.trim()}],b,'Respuesta guardada'))hideSheet()}
+ if(f.id==='fplan'){if(f.lugar.value==='otro'&&!f.lugarTxt.value.trim()){toast('Escribe qué sitio');f.lugarTxt.focus();return}
+  if(await call('savePlan',[open,{lugar:f.lugar.value,lugarTxt:f.lugarTxt.value.trim(),hora:f.hora.value.trim(),nota:f.nota.value.trim(),confirmado:f.confirmado.checked}],b,'Decisión guardada'))hideSheet()}
+ if(f.id==='fhist'){if(await call('saveHist',[histSeason,open,{lugar:f.lugar.value,lugarTxt:f.lugarTxt.value.trim(),anfitrion:f.anfitrion.value,quienes:[...f.querySelectorAll('input[name=q]:checked')].map(i=>i.value),nota:f.nota.value.trim()}],b,'Guardado en el historial'))hideSheet()}
+ if(f.id==='fev'){if(!f.titulo.value.trim()){toast('Escribe un nombre');f.titulo.focus();return}if(!f.fecha.value){toast('Elige el día');f.fecha.focus();return}
+  if(await call('saveEvent',[{key:open||'',titulo:f.titulo.value.trim(),fecha:f.fecha.value,subtitulo:f.subtitulo.value.trim(),cumple:f.cumple.checked}],b,open?'Fecha guardada':'Fecha añadida'))hideSheet()}
+ if(f.id==='flug'){const n=f.n.value.trim();if(!n){f.n.focus();return}
+  let k=n.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'sitio',i=2;const base=k;while(LUG.some(l=>l.k===k)||k==='otro')k=base+'-'+(i++);
+  if(await call('saveCfg',[{lugares:[...LUG,{k,n}]}],b,'Sitio añadido'))f.n.value=''}
+ if(f.id==='ftemp'){const t=f.t.value.trim();if(!t){f.t.focus();return}histSeason=null;await call('saveCfg',[{temporada:t}],b,'Temporada guardada')}
+ if(f.dataset.visform){const k=f.dataset.visform;
+  const hideFams=[...f.querySelectorAll('input[name=vf]')].filter(i=>!i.checked).map(i=>i.value),hideEvs=[...f.querySelectorAll('input[name=ve]')].filter(i=>!i.checked).map(i=>i.value);
+  visDirty.delete(k);if(!await call('saveCfg',[{vis:{[k]:{hideFams,hideEvs}}}],b,'Guardado lo que ve '+famN(k)))visDirty.add(k);else renderAll()}});
+document.addEventListener('change',ev=>{const t=ev.target;
+ {const vf=t.closest('[data-visform]');if(vf)visDirty.add(vf.dataset.visform)}
+ if(t.name==='lugar'){const fm=t.form,o=fm&&fm.querySelector('[data-otro]');if(o){o.hidden=t.value!=='otro';if(!o.hidden)o.querySelector('input').focus()}
+  if(fm&&fm.id==='fhist'&&!fm.anfitrion.value&&cfg.casas&&cfg.casas[t.value])fm.anfitrion.value=cfg.casas[t.value]}
+ if(t.dataset.casa!==undefined)call('saveCfg',[{casas:{[t.dataset.casa]:t.value}}],null,'Casa guardada');
+ if(t.dataset.tel!==undefined)call('saveFam',[t.dataset.tel,{telefono:t.value}],null,'Teléfono guardado')});
+document.addEventListener('focusout',ev=>{if(ev.target.closest&&ev.target.closest('#alinks,#acasas'))setTimeout(()=>{if(S&&isAdmin)renderAdmin()},300)});
+document.addEventListener('focusin',ev=>{if(ev.target.matches('[data-sel]'))setTimeout(()=>ev.target.select(),0)});
+document.addEventListener('click',async ev=>{const t=ev.target;
+ const nv=t.closest('[data-view]');if(nv){view=nv.dataset.view;route();hideSheet();window.scrollTo(0,0);return}
+ const q=t.closest('[data-q]');if(q){const ek=q.dataset.e,est=q.dataset.q,key=me+'__'+ek,old=resp[key];if(old&&old.estado===est)return;
+  resp[key]={...(old||{fam:me,ev:ek}),estado:est};renderAll();
+  if(!await call('saveResp',[me,ek,{estado:est}],null,`${evById(ek)?.t||''}: ${ST[est].l}`)){if(old)resp[key]=old;else delete resp[key];renderAll()}return}
+ const d=t.closest('[data-ev]');if(d){openEv(d.dataset.ev);return}
+ const er=t.closest('[data-editresp]');if(er){openEv(open,er.dataset.editresp);return}
+ const ce=t.closest('[data-cell]');if(ce){openEv(ce.dataset.cev,ce.dataset.cell);return}
+ const h=t.closest('[data-hist]');if(h){openHist(h.dataset.hist);return}
+ const se=t.closest('[data-season]');if(se){histSeason=se.dataset.season;renderHist();return}
+ const ee=t.closest('[data-evedit]');if(ee){openEvEdit(ee.dataset.evedit);return}
+ if(t.closest('[data-evnew]')){openEvEdit(null);return}
+ let b;
+ if((b=t.closest('[data-delev]'))){if(armed(b)&&await call('deleteEvent',[open],b,'Fecha borrada'))hideSheet();return}
+ if((b=t.closest('[data-delresp]'))){if(armed(b)&&await call('deleteResp',[openFam,open],b,'Respuesta quitada'))hideSheet();return}
+ if((b=t.closest('[data-delhist]'))){if(armed(b)&&await call('saveHist',[histSeason,open,{}],b,'Apunte borrado'))hideSheet();return}
+ if((b=t.closest('[data-dellug]'))){if(armed(b,'¿Quitar?'))await call('saveCfg',[{lugares:LUG.filter(l=>l.k!==b.dataset.dellug)}],b,'Sitio quitado');return}
+ if((b=t.closest('[data-regen]'))){if(armed(b,'¿Seguro? El viejo dejará de ir'))await call('saveFam',[b.dataset.regen,{nuevoToken:true}],b,'Enlace nuevo creado. Envíaselo.');return}
+ if((b=t.closest('[data-cerrar]'))){if(armed(b))await call('cerrarTemporada',[],b,'Guardado en el historial');return}
+ if((b=t.closest('[data-copy]'))){const l=link(b.dataset.copy),inp=b.closest('.lrow').querySelector('[data-sel]');let ok=false;
+  try{await navigator.clipboard.writeText(l.url);ok=true}catch(e){try{inp.focus();inp.select();ok=document.execCommand('copy')}catch(e2){}}
+  toast(ok?'Enlace copiado':'Mantén pulsado el enlace para copiarlo');if(!ok){inp.focus();inp.select()}return}
+ if(t.closest('#themeBtn')){theme=THEMES[(THEMES.indexOf(theme)+1)%THEMES.length];try{localStorage.setItem('navi-tema',theme)}catch(e){}applyTheme();toast('Tema: '+TLBL[theme]);return}
+ if(t.closest('#x')||t.id==='ov')hideSheet()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hideSheet();
+ if(e.key==='Tab'&&!$('#ov').hidden){const f=[...$('#sheet').querySelectorAll('button:not([tabindex="-1"]),input,select,textarea,summary,[href]')].filter(x=>!x.disabled&&x.offsetParent);if(!f.length)return;
+  const a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)return;if(hoy()!==today){today=hoy();renderAll()}refresh()});
+{let y0=null,dy=0;const g=$('#grab'),sh=$('#sheet');
+ g.addEventListener('pointerdown',e=>{y0=e.clientY;dy=0;g.setPointerCapture(e.pointerId);sh.style.transition='none'});
+ g.addEventListener('pointermove',e=>{if(y0===null)return;dy=Math.max(0,e.clientY-y0);sh.style.transform=`translateY(${dy}px)`});
+ const end=()=>{if(y0===null)return;y0=null;sh.style.transition='';if(dy>90)hideSheet();else sh.style.transform=''};
+ g.addEventListener('pointerup',end);g.addEventListener('pointercancel',end);g.addEventListener('click',()=>{if(dy<5)hideSheet()})}
+const VIEWS=['calendario','resumen','historial','admin'];
+function route(){if(!VIEWS.includes(view)||(view==='admin'&&!isAdmin))view='calendario';
+ for(const s of VIEWS)$('#v-'+s).hidden=s!==view;
+ document.querySelectorAll('.bnav [data-view]').forEach(a=>a.setAttribute('aria-current',a.dataset.view===view?'page':'false'))}
+
+/* Tema: automático / claro / oscuro */
+const THEMES=['auto','light','dark'],TLBL={auto:'automático',light:'claro',dark:'oscuro'};
+const TICO={auto:'<path d="M12 3a9 9 0 1 0 0 18z" fill="currentColor"/><circle cx="12" cy="12" r="9"/>',light:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',dark:'<path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/>'};
+let theme='auto';try{theme=localStorage.getItem('navi-tema')||'auto'}catch(e){}if(!THEMES.includes(theme))theme='auto';
+function applyTheme(){const r=document.documentElement;if(theme==='auto')r.removeAttribute('data-theme');else r.dataset.theme=theme;
+ const b=$('#themeBtn');b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">${TICO[theme]}</svg>`;b.setAttribute('aria-label','Tema '+TLBL[theme]+'. Cambiar')}
+applyTheme();
+
+{const sn=$('#snow');let h='';for(let i=0;i<22;i++)h+=`<i style="left:${(i*4.6+Math.random()*4).toFixed(1)}%;--s:${(2+Math.random()*3).toFixed(1)}px;--d:${(6+Math.random()*6).toFixed(1)}s;--w:-${(Math.random()*10).toFixed(1)}s;--x:${(Math.random()*30-15).toFixed(0)}px"></i>`;sn.innerHTML=h}
+
+function sinAcceso(tit,txt){$('#bnav').hidden=true;$('#count').textContent='';$('#icsAll').hidden=true;$('#v-calendario').querySelector('.legend').hidden=true;
+ $('#cal').innerHTML=`<div class="box"><h3>${tit}</h3><p class="small" style="margin:0">${txt}</p></div>`}
+async function arrancar(){
+ if(!T){sinAcceso('Falta vuestro enlace','Cada familia entra con su propio enlace. Pídeselo a Carolina o Daniel por WhatsApp.');return}
+ if(/PEGAR_AQUI/.test(SUPA_KEY)){sinAcceso('Falta configurar la app','Hay que poner la clave publicable de Supabase en el archivo.');return}
+ $('#cal').innerHTML='<div class="box"><h3>Cargando…</h3><p class="small" style="margin:0">Un momento, estamos trayendo las fechas.</p></div>';
+ for(let i=0;i<3;i++){try{setState(await run('getState'));setInterval(()=>{if(!document.hidden&&$('#ov').hidden)refresh()},30000);return}
+  catch(e){if(e.dbcode==='P0001'){try{localStorage.removeItem('navi-token')}catch(x){}sinAcceso('Este enlace ya no vale','Pide a Carolina o Daniel el vuestro por WhatsApp.');return}
+   if(i===2)sinAcceso('No se pudo cargar','Comprueba la conexión y vuelve a abrir el enlace.');else await new Promise(r=>setTimeout(r,1500))}}}
+arrancar();
+}
+</script>
+</body></html>
