@@ -8,7 +8,8 @@
 /* VOICE: cálido, de casa, festivo pero legible a un pulgar de distancia
    IDEA: una tarjeta de Navidad con guirnalda de luces que hace de calendario de la familia
    LAYOUT: móvil primero: lista vertical, respuesta rápida en la propia tarjeta, barra inferior, hojas que suben desde abajo
-   v4: GitHub Pages + Supabase; cada familia entra con su enlace (?f=token), sin login. */
+   v4: GitHub Pages + Supabase; cada familia entra con su enlace (?f=token), sin login.
+   v6: cada familia solo ve lo suyo; las respuestas de los demás y las votaciones, solo admin. */
 :root{color-scheme:light;
 --bg:#f6f2ea;--card:#fffdf9;--ink:#1f1a16;--mute:#625a52;--line:#e6ddd0;--pine:#0f3a2a;--pine2:#1b5a40;--red:#b3242a;--gold:#f0b429;
 --si:#1f7a48;--qz:#f0b429;--ot:#2c67b0;--no:#b8322b;--nr:#ddd5c9;
@@ -21,6 +22,7 @@
 --bg:#0b1611;--card:#14241b;--ink:#f3efe6;--mute:#aab8ae;--line:#26392e;--pine2:#8fd0aa;--red:#e0565b;--nr:#34463b;
 --on-pine2:#0b1611;--note-bg:#3a2f12;--badge-bg:#1c3a2a;--nav-bg:#0f1d16f2;--hi-bg:#2a1716;--wa:#5fcf8f}
 *{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Nunito,system-ui,sans-serif;overflow-x:clip;touch-action:manipulation}
 h1,h2,h3{margin:0;line-height:1.1;text-wrap:balance}
 h2,h3{font-family:"Baloo 2",system-ui,sans-serif}
@@ -187,7 +189,7 @@ details[open]{padding-bottom:14px}
 <main id="main" class="wrap">
   <section id="v-calendario" aria-labelledby="h-cal">
     <div class="sec-h"><h2 id="h-cal">Las fechas</h2><a class="btn ghost mini" id="icsAll" download="navidades-en-familia.ics" hidden>📅 A mi calendario</a></div>
-    <div class="legend"><span><b style="--c:var(--si)"></b>Sí</span><span><b style="--c:var(--qz)"></b>Quizá</span><span><b style="--c:var(--ot)"></b>Con la otra familia</span><span><b style="--c:var(--no)"></b>No</span><span><b style="--c:var(--nr)"></b>Sin responder</span></div>
+    <div class="legend" id="legend" hidden><span><b style="--c:var(--si)"></b>Sí</span><span><b style="--c:var(--qz)"></b>Quizá</span><span><b style="--c:var(--ot)"></b>Con la otra familia</span><span><b style="--c:var(--no)"></b>No</span><span><b style="--c:var(--nr)"></b>Sin responder</span></div>
     <div id="cal" class="list"></div>
   </section>
   <section id="v-resumen" hidden aria-labelledby="h-res">
@@ -201,7 +203,7 @@ details[open]{padding-bottom:14px}
     <div class="sec-h"><h2 id="h-his">Historial</h2></div>
     <p class="small" style="margin-top:-6px" id="histIntro"></p>
     <div class="chips" id="seasons" role="group" aria-label="Temporada"></div>
-    <div class="box"><h3>Quién ha sido anfitrión</h3><div id="tally"></div></div>
+    <div class="box" id="tallyBox" hidden><h3>Quién ha sido anfitrión</h3><div id="tally"></div></div>
     <div id="hist" class="list"></div>
     <div id="histAdm"></div>
   </section>
@@ -213,12 +215,12 @@ details[open]{padding-bottom:14px}
     <div class="box"><h3>Sitios y casas</h3><p class="small" style="margin:-4px 0 6px">De quién es la casa de cada sitio. Así se ve «Canet · casa de…» en la decisión.</p><div id="acasas"></div>
       <form id="flug" class="inl"><input type="text" name="n" maxlength="60" placeholder="Nuevo sitio, ej.: Sant Pol" aria-label="Nombre del nuevo sitio"><button class="btn alt" type="submit" style="width:auto">Añadir</button></form></div>
     <div class="box"><h3>Temporada</h3><form id="ftemp"><label class="f">Temporada actual <span class="help">Al acabar las fiestas: en Historial, «Guardar las decisiones en el historial». Después cambia la temporada y las fechas.</span><input type="text" name="t" maxlength="20" placeholder="2026-27"></label><button class="btn alt" type="submit">Guardar temporada</button></form></div>
-    <div class="box"><h3>Qué ve cada familia</h3><p class="small" style="margin:-4px 0 6px">Elige qué respuestas de otras familias y qué fechas ve cada una. Cada familia siempre ve las suyas.</p><div id="avis"></div></div>
+    <div class="box"><h3>Qué ve cada familia</h3><p class="small" style="margin:-4px 0 6px">Elige qué fechas ve cada familia. Las respuestas y votaciones de los demás solo las veis vosotros: cada familia ve únicamente las suyas.</p><div id="avis"></div></div>
   </section>
 </main>
 <nav class="bnav" id="bnav" aria-label="Secciones"><div>
   <button type="button" data-view="calendario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>Fechas</button>
-  <button type="button" data-view="resumen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Resumen</button>
+  <button type="button" data-view="resumen" id="navRes" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Resumen</button>
   <button type="button" data-view="historial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>Historial</button>
   <button type="button" data-view="admin" id="navAdm" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Admin</button>
 </div></nav>
@@ -243,7 +245,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const hoy=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 let today=hoy();
-const fam=k=>FAM.find(f=>f.k===k);const famN=k=>fam(k)?.n||'';
+const fam=k=>FAM.find(f=>f.k===k);const famN=k=>fam(k)?.n||(S&&S.hostNames&&S.hostNames[k])||'';
 const R=(f,e)=>resp[f+'__'+e];
 const stOf=r=>r&&ST[r.estado];
 const evById=k=>EV.find(e=>e.k===k);
@@ -309,9 +311,9 @@ function renderHead(){
  if(nx){const n=Math.round((new Date(nx.f+'T12:00')-new Date(today+'T12:00'))/864e5);$('#count').textContent=n===0?`¡Hoy es ${nx.t}!`:n===1?`Mañana: ${nx.t}`:`Faltan ${n} días para ${nx.t}`}
  else $('#count').textContent=EV.length?'¡Feliz año a toda la familia!':'Navidades '+(cfg.temporada||'');
  const w=$('#whoBtn');w.hidden=false;w.innerHTML=`<span class="orn" style="--c:var(--red);margin:0">${esc(S.me.i)}</span>Sois ${esc(S.me.n)}${isAdmin?'<span class="adm">Admin</span>':''}`;
- $('#navAdm').hidden=!isAdmin;
+ $('#navAdm').hidden=!isAdmin;$('#navRes').hidden=!isAdmin;$('#legend').hidden=!isAdmin;
  const ia=$('#icsAll'),u=icsUrl('all');ia.hidden=!u||!EV.length;if(u)ia.href=u;
- $('#histIntro').textContent='Cómo quedó cada fecha otros años, para repartir anfitriones con justicia.'+(isAdmin?'':' Lo apuntan Carolina y Daniel.')}
+ $('#histIntro').textContent=isAdmin?'Cómo quedó cada fecha otros años, para repartir anfitriones con justicia.':'Dónde fue cada fecha otros años. Lo apuntan Carolina y Daniel.'}
 function renderCal(){
  $('#cal').innerHTML=EV.map(e=>{const s=stats(e),p=plan[e.k],h=histFor(e.k,prevSeason(cfg.temporada)),mine=R(me,e.k),lt=lugarTxt(p),lock=isPast(e)&&!isAdmin;
  return `<article class="card${e.cum?' cum':''}${isPast(e)?' past':''}">
@@ -320,8 +322,8 @@ function renderCal(){
   <span class="ct"><small>${e.w}${e.s?' · '+esc(e.s):''}</small><span class="tt">${esc(e.t)}</span></span>
   <span class="chev" aria-hidden="true">Detalles<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span>
  </button>
- <div class="orns">${FAM.map(f=>{const st=stOf(R(f.k,e.k));return `<span class="ornw">${orn(f,R(f.k,e.k))}<span aria-hidden="true">${st?(st.m||st.s):'—'}</span></span>`}).join('')}</div>
- <div class="meta"><b>${s.si}</b> de ${s.n} pueden${s.qz?` · ${s.qz} quizá`:''} · <b>${s.votos}</b> ${s.votos===1?'voto':'votos'} para juntarnos${s.casas.length?`<br><span class="small">Ofrecen casa: ${esc(s.casas.join(', '))}</span>`:''}</div>
+ ${isAdmin?`<div class="orns">${FAM.map(f=>{const st=stOf(R(f.k,e.k));return `<span class="ornw">${orn(f,R(f.k,e.k))}<span aria-hidden="true">${st?(st.m||st.s):'—'}</span></span>`}).join('')}</div>
+ <div class="meta"><b>${s.si}</b> de ${s.n} pueden${s.qz?` · ${s.qz} quizá`:''} · <b>${s.votos}</b> ${s.votos===1?'voto':'votos'} para juntarnos${s.casas.length?`<br><span class="small">Ofrecen casa: ${esc(s.casas.join(', '))}</span>`:''}</div>`:''}
  ${lt?(p.confirmado?`<div class="badge">★ ${esc(lt)}${p.hora?' · '+esc(p.hora):''}</div>`:`<div class="last">Propuesta: ${esc(lt)}${p.hora?' · '+esc(p.hora):''}</div>`):''}
  ${h&&lugarTxt(h)?`<div class="last">El año pasado: ${esc(lugarTxt(h))}</div>`:''}
  <div class="qlabel" id="ql-${esc(e.k)}">${lock?(mine?'Fecha pasada · respondisteis':'Fecha pasada'):mine?'Vuestra respuesta':'Falta vuestra respuesta'}</div><div class="quick" role="group" aria-labelledby="ql-${esc(e.k)}">${Object.keys(ST).map(k=>`<button type="button" data-q="${k}" data-e="${esc(e.k)}" style="${cvar(ST[k])}" aria-pressed="${mine?.estado===k}"${lock?' disabled':''}>${ST[k].s}</button>`).join('')}</div>
@@ -341,7 +343,7 @@ function renderHist(){
  const cur=cfg.temporada,seasons=[...new Set([cur,prevSeason(cur),...hist.map(h=>h.temporada)].filter(Boolean))].sort().reverse();
  if(!seasons.includes(histSeason))histSeason=seasons[0];
  $('#seasons').innerHTML=seasons.map(t=>`<button type="button" class="chip" data-season="${esc(t)}" aria-pressed="${t===histSeason}">${esc(t)}${t===cur?' (actual)':''}</button>`).join('');
- const host={};hist.forEach(h=>{if(h.anfitrion)(host[h.anfitrion]=host[h.anfitrion]||[]).push(h)});
+ $('#tallyBox').hidden=!isAdmin;const host={};hist.forEach(h=>{if(h.anfitrion)(host[h.anfitrion]=host[h.anfitrion]||[]).push(h)});
  const rows=FAM.map(f=>({f,l:host[f.k]||[]})).sort((a,b)=>b.l.length-a.l.length||a.f.n.localeCompare(b.f.n));
  $('#tally').innerHTML=Object.keys(host).length?rows.map(x=>{const by={};x.l.forEach(h=>(by[h.temporada]=by[h.temporada]||[]).push(h.titulo||evById(h.ev)?.t||h.ev));
   return `<div class="rowi"><span class="tally"><span class="cnt">${x.l.length}</span><span><b>${esc(x.f.n)}</b><span class="small" style="display:block">${x.l.length?Object.keys(by).sort().reverse().map(t=>`${esc(t)}: ${by[t].map(esc).join(', ')}`).join(' · '):'Todavía no ha sido anfitrión'}</span></span></span></div>`}).join(''):'<p class="vacio">Cuando se apunte quién fue anfitrión de cada fecha, aquí saldrá el recuento.</p>';
@@ -366,8 +368,7 @@ function renderAdmin(){if(!isAdmin)return;
  const ti=$('#ftemp').t;if(document.activeElement!==ti)ti.value=cfg.temporada||'';
  const curOpen=[...document.querySelectorAll('#avis details[open]')].map(d=>d.dataset.v);
  if(!visDirty.size)$('#avis').innerHTML=FAM.map(f=>{const v=visOf(f.k),adm=link(f.k)?.admin;return `<details data-v="${esc(f.k)}"${curOpen.includes(f.k)?' open':''}><summary>${esc(f.n)}${adm?' <span class="adm">Admin</span>':''}</summary>
- ${adm?'<p class="lock">Como administradores, lo ven todo.</p>':`<form data-visform="${esc(f.k)}"><b class="small">Ve las respuestas de</b><div class="chkgrid">${FAM.filter(o=>o.k!==f.k).map(o=>`<label class="chk"><input type="checkbox" name="vf" value="${esc(o.k)}"${(v.hideFams||[]).includes(o.k)?'':' checked'}><span>${esc(o.n)}</span></label>`).join('')}</div>
- <b class="small">Ve estas fechas</b><div class="chkgrid">${EV.map(e=>`<label class="chk"><input type="checkbox" name="ve" value="${esc(e.k)}"${(v.hideEvs||[]).includes(e.k)?'':' checked'}><span>${esc(e.t)} · ${e.d} ${e.m}</span></label>`).join('')}</div>
+ ${adm?'<p class="lock">Como administradores, lo ven todo.</p>':`<form data-visform="${esc(f.k)}"><b class="small">Ve estas fechas</b><div class="chkgrid">${EV.map(e=>`<label class="chk"><input type="checkbox" name="ve" value="${esc(e.k)}"${(v.hideEvs||[]).includes(e.k)?'':' checked'}><span>${esc(e.t)} · ${e.d} ${e.m}</span></label>`).join('')}</div>
  <button class="btn alt" type="submit">Guardar lo que ve ${esc(f.n)}</button></form>`}</details>`}).join('')}
 function renderAll(){if(!S)return;const a=document.activeElement,sel=a&&a.closest&&a.closest('#cal,#mxs')?(a.dataset.q?`[data-q="${a.dataset.q}"][data-e="${a.dataset.e}"]`:a.dataset.ev?`[data-ev="${a.dataset.ev}"]`:a.dataset.cell?`[data-cell="${a.dataset.cell}"][data-cev="${a.dataset.cev}"]`:''):'';
  renderHead();renderCal();renderRes();renderHist();renderAdmin();route();if(open&&mode==='ev')renderLive();
@@ -398,9 +399,9 @@ function openEv(k,asFam){const e=evById(k);if(!e)return;const f=asFam||me;mode='
  <label class="f">Detalles <span class="help">Opcional. Ej.: cada familia trae un plato</span><input type="text" name="nota" maxlength="200" value="${esc(p.nota)}"></label>
  <label class="chk"><input type="checkbox" name="confirmado"${p.confirmado?' checked':''}><span>Confirmado (si no, sale como propuesta)</span></label>
  <button class="btn alt" type="submit">Guardar decisión</button></form></details>`:''}
- <h3>Respuestas de la familia</h3>`;
+ ${isAdmin?'<h3>Respuestas de la familia</h3>':''}`;
  renderLive();showSheet()}
-function renderLive(){const k=open;$('#plive').innerHTML=FAM.map(f=>{const r=R(f.k,k),st=stOf(r);return `<div class="resp"><span style="display:flex;gap:12px;align-items:flex-start">${orn(f,r)}<span><b>${esc(f.n)}</b>${r&&r.con?`<span class="small" style="display:block">Plan: ${esc(r.con)}</span>`:''}${r&&r.nota?`<span class="small" style="display:block">${esc(r.nota)}</span>`:''}${r&&(r.voto||r.casa)?`<span class="small" style="display:block">${[r.voto?'Vota juntarnos':'',r.casa?'Ofrece casa':''].filter(Boolean).join(' · ')}</span>`:''}</span></span><span class="rsd"><span class="pill${st?'':' nr'}" style="${cvar(st)}">${st?st.s:'Pendiente'}</span>${isAdmin&&f.k!==openFam?`<button type="button" class="btn ghost mini" data-editresp="${esc(f.k)}">Cambiar</button>`:''}</span></div>`}).join('')}
+function renderLive(){const k=open;if(!isAdmin){$('#plive').innerHTML='';return}$('#plive').innerHTML=FAM.map(f=>{const r=R(f.k,k),st=stOf(r);return `<div class="resp"><span style="display:flex;gap:12px;align-items:flex-start">${orn(f,r)}<span><b>${esc(f.n)}</b>${r&&r.con?`<span class="small" style="display:block">Plan: ${esc(r.con)}</span>`:''}${r&&r.nota?`<span class="small" style="display:block">${esc(r.nota)}</span>`:''}${r&&(r.voto||r.casa)?`<span class="small" style="display:block">${[r.voto?'Vota juntarnos':'',r.casa?'Ofrece casa':''].filter(Boolean).join(' · ')}</span>`:''}</span></span><span class="rsd"><span class="pill${st?'':' nr'}" style="${cvar(st)}">${st?st.s:'Pendiente'}</span>${isAdmin&&f.k!==openFam?`<button type="button" class="btn ghost mini" data-editresp="${esc(f.k)}">Cambiar</button>`:''}</span></div>`}).join('')}
 function openHist(k){if(!isAdmin)return;mode='hist';open=k;const e=evById(k),h=histFor(k,histSeason)||{};
  $('#pbody').innerHTML=`<h2 id="ptitle">${esc(e?e.t:h.titulo||k)}</h2><p class="small" style="margin:4px 0 14px">Cómo quedó en ${esc(histSeason)}</p><form id="fhist">
  ${lugarFields(h,'Dónde fue')}
@@ -437,7 +438,7 @@ document.addEventListener('submit',async ev=>{ev.preventDefault();const f=ev.tar
   if(await call('saveCfg',[{lugares:[...LUG,{k,n}]}],b,'Sitio añadido'))f.n.value=''}
  if(f.id==='ftemp'){const t=f.t.value.trim();if(!t){f.t.focus();return}histSeason=null;await call('saveCfg',[{temporada:t}],b,'Temporada guardada')}
  if(f.dataset.visform){const k=f.dataset.visform;
-  const hideFams=[...f.querySelectorAll('input[name=vf]')].filter(i=>!i.checked).map(i=>i.value),hideEvs=[...f.querySelectorAll('input[name=ve]')].filter(i=>!i.checked).map(i=>i.value);
+  const hideFams=[],hideEvs=[...f.querySelectorAll('input[name=ve]')].filter(i=>!i.checked).map(i=>i.value);
   visDirty.delete(k);if(!await call('saveCfg',[{vis:{[k]:{hideFams,hideEvs}}}],b,'Guardado lo que ve '+famN(k)))visDirty.add(k);else renderAll()}});
 document.addEventListener('change',ev=>{const t=ev.target;
  {const vf=t.closest('[data-visform]');if(vf)visDirty.add(vf.dataset.visform)}
@@ -481,7 +482,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)return;if(h
  const end=()=>{if(y0===null)return;y0=null;sh.style.transition='';if(dy>90)hideSheet();else sh.style.transform=''};
  g.addEventListener('pointerup',end);g.addEventListener('pointercancel',end);g.addEventListener('click',()=>{if(dy<5)hideSheet()})}
 const VIEWS=['calendario','resumen','historial','admin'];
-function route(){if(!VIEWS.includes(view)||(view==='admin'&&!isAdmin))view='calendario';
+function route(){if(!VIEWS.includes(view)||((view==='admin'||view==='resumen')&&!isAdmin))view='calendario';
  for(const s of VIEWS)$('#v-'+s).hidden=s!==view;
  document.querySelectorAll('.bnav [data-view]').forEach(a=>a.setAttribute('aria-current',a.dataset.view===view?'page':'false'))}
 
@@ -495,7 +496,7 @@ applyTheme();
 
 {const sn=$('#snow');let h='';for(let i=0;i<22;i++)h+=`<i style="left:${(i*4.6+Math.random()*4).toFixed(1)}%;--s:${(2+Math.random()*3).toFixed(1)}px;--d:${(6+Math.random()*6).toFixed(1)}s;--w:-${(Math.random()*10).toFixed(1)}s;--x:${(Math.random()*30-15).toFixed(0)}px"></i>`;sn.innerHTML=h}
 
-function sinAcceso(tit,txt){$('#bnav').hidden=true;$('#count').textContent='';$('#icsAll').hidden=true;$('#v-calendario').querySelector('.legend').hidden=true;
+function sinAcceso(tit,txt){$('#bnav').hidden=true;$('#count').textContent='';$('#icsAll').hidden=true;
  $('#cal').innerHTML=`<div class="box"><h3>${tit}</h3><p class="small" style="margin:0">${txt}</p></div>`}
 async function arrancar(){
  if(!T){sinAcceso('Falta vuestro enlace','Cada familia entra con su propio enlace. Pídeselo a Carolina o Daniel por WhatsApp.');return}
